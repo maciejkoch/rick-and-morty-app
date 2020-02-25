@@ -1,14 +1,14 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Ricky and Morty app
+      Rick and Morty app
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <ion-toolbar [formGroup]="form">
-    <ion-searchbar formControlName="search"></ion-searchbar>
+    <ion-searchbar formControlName="name"></ion-searchbar>
     <ion-item> 
       <ion-label>Gender</ion-label>
       <ion-select [value]="genderOptions[0].value" formControlName="gender">
@@ -19,30 +19,30 @@
       Clear
     </ion-button>
   </ion-toolbar>
-  
+
   <ion-list>
-    <ion-item *ngFor="let item of items$ | async" [routerLink]="['/details/', item.id]" routerDirection="forward">
-      <ion-label class="ion-text-wrap">
-        <ion-text color="primary">
-          <h3>{{ item.name }}</h3>
-        </ion-text>
-        <p>{{ item.gender }}</p>
-        <ion-text color="secondary">
-          <p>{{ item.species }}</p>
-        </ion-text>
+    <ion-item *ngFor="let item of (page$ | async)?.items" [routerLink]="['/details/', item.id]" routerDirection="forward">
+      <ion-avatar slot="start">
+        <img [src]="item.image">
+      </ion-avatar>
+      <ion-label>
+        <h2>{{ item.name }}</h2>
+        <h3>{{ item.gender }}</h3>
+        <p>{{ item.species }}</p>
       </ion-label>
     </ion-item>
   </ion-list>
 </ion-content>
+
 <ion-footer>
-  <ion-toolbar *ngIf="info$ | async as info">
+  <ion-toolbar *ngIf="page$ | async as page">
     <ion-buttons slot="start">
-      <ion-button *ngIf="info.prev" (click)="performPagination(info.prev)">
+      <ion-button *ngIf="page.prev" (click)="performPagination(page.prev)">
         Prev
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button *ngIf="info.next" (click)="performPagination(info.next)">
+      <ion-button *ngIf="page.next" (click)="performPagination(page.next)">
         Next
       </ion-button>
     </ion-buttons>

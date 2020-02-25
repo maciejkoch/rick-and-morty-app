@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
+import { FormGroup, FormBuilder } from '@angular/forms';
 
-import { Observable } from 'rxjs';
-import { switchMap, debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
+import { Observable, Subject, merge } from 'rxjs';
+import { switchMap, debounceTime, distinctUntilChanged, startWith, share } from 'rxjs/operators';
 
 import { DataService } from '../data/data.service';
+import { Page } from '../data/data.model';
 
 @Component({
   selector: 'app-home',
@@ -14,10 +15,9 @@ import { DataService } from '../data/data.service';
 export class HomePage implements OnInit {
 
   form: FormGroup;
-  searchControl: FormControl;
 
-  items$: Observable<any>;
-  info$: Observable<any>;
+  page$: Observable<Page>;
+  pageUrl$ = new Subject<string>();
 
   genderOptions = [{
     text: 'Any',
@@ -38,30 +38,31 @@ export class HomePage implements OnInit {
 
   constructor(private fb: FormBuilder, private dataService: DataService) {
     this.form = this.fb.group({
-      search: [''],
+      name: [''],
       gender: ['']
     });
   }
 
   ngOnInit(): void {
-    this.form.valueChanges.pipe(
-      startWith({ search: ''}),
+    const formChanges$ = this.form.valueChanges.pipe(
+      startWith({ name: ''}),
       debounceTime(700),
-      distinctUntilChanged(),
-      switchMap(changes => this.dataService.search(changes))
-    ).subscribe();
+      distinctUntilChanged()
+    );
 
-    this.items$ = this.dataService.items;
-    this.info$ = this.dataService.info;
+    this.page$ = merge(formChanges$, this.pageUrl$).pipe(
+      switchMap(searchParams => this.dataService.getCharacters(searchParams)),
+      share()
+    );
   }
 
   performPagination(url: string): void {
-    this.dataService.search({ url }).subscribe();
+    this.pageUrl$.next(url);
   }
 
   clear(): void {
     this.form.patchValue({
-      search: '',
+      name: '',
       gender: ''
     });
   }

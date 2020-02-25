@@ -17,10 +17,7 @@ export class DetailsPage implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-
-    this.item$ = this.dataService.items.pipe(
-      map(items => items.find(item => item.id.toString() === id))
-    );
+    this.item$ = this.dataService.getCharacter(id);
   }
 
 }

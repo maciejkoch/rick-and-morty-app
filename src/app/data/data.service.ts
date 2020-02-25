@@ -1,45 +1,44 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, Subject, EMPTY, ReplaySubject } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+
+import { get } from 'lodash';
+
+import { SearchParams, Page, Character } from './data.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
 
-  private items$: Subject<any[]> = new ReplaySubject(1);
-  private info$: Subject<any> = new Subject();
-
   readonly baseUrl = 'https://rickandmortyapi.com/api';
-
-  get items(): Observable<any[]> {
-    return this.items$.asObservable();
-  }
-
-  get info(): Observable<any> {
-    return this.info$.asObservable();
-  }
 
   constructor(private httpClient: HttpClient) { }
 
-  search(opts: {url?: string, search?: string, gender?: string}): Observable<void> {
-    let params = new HttpParams();
-    const url = opts.url || `${this.baseUrl}/character`;
+  getCharacters(param: string | SearchParams): Observable<Page> {
+    let httpParams = new HttpParams();
+    const url = typeof(param) === 'string' ? param : `${this.baseUrl}/character`;
+    const name = get(param, 'name');
+    const gender = get(param, 'gender');
 
-    params = opts.search ? params.append('name', opts.search) : params;
-    params = opts.gender ? params.append('gender', opts.gender) : params;
+    httpParams = name ? httpParams.append('name', name) : httpParams;
+    httpParams = gender ? httpParams.append('gender', gender) : httpParams;
 
-    return this.httpClient.get(url, { params }).pipe(
-      tap((data: any) => {
-        this.items$.next(data.results);
-        this.info$.next(data.info);
+    return this.httpClient.get(url, { params: httpParams }).pipe(
+      map((data: any) => {
+        return {
+          prev: data.info.prev,
+          next: data.info.next,
+          items: data.results
+        };
       }),
-      catchError(() => {
-        this.items$.next([]);
-        this.info$.next({});
-        return EMPTY;
-      })
+      catchError(() => of({ items: []}))
     );
+  }
+
+  getCharacter(id: string): Observable<Character> {
+    const url = `${this.baseUrl}/character/${id}`;
+    return this.httpClient.get<Character>(url);
   }
 }
