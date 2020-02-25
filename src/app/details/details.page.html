@@ -1,0 +1,16 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>details</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card *ngIf="item$ | async as item">
+    <img [src]="item.image" />
+    <ion-card-header>
+      <ion-card-title>{{ item. gender }}</ion-card-title>
+      <ion-card-subtitle>{{ item.name }}</ion-card-subtitle>
+      <ion-card-subtitle>{{ item.species }}</ion-card-subtitle>
+    </ion-card-header>
+  </ion-card>
+</ion-content>

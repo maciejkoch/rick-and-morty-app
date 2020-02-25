@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, Subject, EMPTY } from 'rxjs';
+import { Observable, Subject, EMPTY, ReplaySubject } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 
 @Injectable({
@@ -8,7 +8,7 @@ import { tap, catchError } from 'rxjs/operators';
 })
 export class DataService {
 
-  private items$: Subject<any[]> = new Subject();
+  private items$: Subject<any[]> = new ReplaySubject(1);
   private info$: Subject<any> = new Subject();
 
   readonly baseUrl = 'https://rickandmortyapi.com/api';
