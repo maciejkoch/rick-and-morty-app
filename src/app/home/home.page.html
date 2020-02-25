@@ -8,19 +8,33 @@
 
 <ion-content>
   <ion-toolbar [formGroup]="form">
-    <ion-searchbar formControlName="name"></ion-searchbar>
+    <ion-item-divider>
+      <ion-label>
+        Filters
+      </ion-label>
+    </ion-item-divider>
+    <ion-item> 
+      <ion-searchbar formControlName="name"></ion-searchbar>
+    </ion-item>
     <ion-item> 
       <ion-label>Gender</ion-label>
-      <ion-select [value]="genderOptions[0].value" formControlName="gender">
+      <ion-select [value]="genderOptions[0].value" formControlName="gender" interface="popover">
         <ion-select-option *ngFor="let option of genderOptions" [value]="option.value">{{ option.text }}</ion-select-option>
       </ion-select>
     </ion-item>
-    <ion-button (click)="clear()">
-      Clear
-    </ion-button>
+    <ion-item> 
+      <ion-button slot="end" (click)="clear()">
+        Clear
+      </ion-button>
+    </ion-item>
   </ion-toolbar>
 
   <ion-list>
+    <ion-item-divider>
+      <ion-label>
+        Characters
+      </ion-label>
+    </ion-item-divider>
     <ion-item *ngFor="let item of (page$ | async)?.items" [routerLink]="['/details/', item.id]" routerDirection="forward">
       <ion-avatar slot="start">
         <img [src]="item.image">

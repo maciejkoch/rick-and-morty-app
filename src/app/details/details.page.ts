@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DataService } from '../data/data.service';
 import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { share } from 'rxjs/operators';
 
 @Component({
   selector: 'app-details',
@@ -17,7 +17,9 @@ export class DetailsPage implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    this.item$ = this.dataService.getCharacter(id);
+    this.item$ = this.dataService.getCharacter(id).pipe(
+      share()
+    );
   }
 
 }
